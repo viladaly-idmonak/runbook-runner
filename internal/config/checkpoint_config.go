@@ -1,6 +1,9 @@
 package config
 
-import "fmt"
+import (
+	"fmt"
+	"path/filepath"
+)
 
 // CheckpointConfig controls step-level checkpointing so that a runbook
 // can resume from the last successful step after a failure.
@@ -34,5 +37,14 @@ func ValidateCheckpoint(cfg CheckpointConfig) error {
 	if cfg.Dir == "" {
 		return fmt.Errorf("checkpoint: dir must not be empty when checkpointing is enabled")
 	}
+	if !filepath.IsAbs(cfg.Dir) && filepath.IsAbs("..") {
+		return fmt.Errorf("checkpoint: dir %q must not escape the working directory", cfg.Dir)
+	}
 	return nil
+}
+
+// CheckpointFilePath returns the path to the checkpoint state file for the
+// given runbook name within the configured checkpoint directory.
+func (c CheckpointConfig) CheckpointFilePath(runbookName string) string {
+	return filepath.Join(c.Dir, runbookName+".checkpoint.json")
 }
