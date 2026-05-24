@@ -51,3 +51,9 @@ func ValidateAudit(cfg AuditConfig) error {
 
 	return nil
 }
+
+// IsJSON reports whether the audit log format is set to JSON.
+// This is a convenience helper for code that needs to select an encoder.
+func (a AuditConfig) IsJSON() bool {
+	return strings.EqualFold(a.Format, "json")
+}
